@@ -5,7 +5,7 @@ const CONFIG = {
 
     // After deploying the Apps Script, paste the Web App URL here
     // It will look like: https://script.google.com/macros/s/AKfycbx.../exec
-    APPS_SCRIPT_URL: 'https://script.google.com/a/macros/irc.pshs.edu.ph/s/AKfycbxRbBVfga8wP7TteMY74ZA8YDUFXDdRGSXsII-FWTtveUkJVdYpNLLELkGaRrsmmJ-I/exec',
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwL98lfIUqtML7aLBcr8E2kcb2G8GIbM9PbuDu5Cd_sguJughFK8xSugnBD94MHaV_d/exec',
 
     // ============================================
     // DISPLAY SETTINGS
