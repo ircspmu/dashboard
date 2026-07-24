@@ -5,7 +5,7 @@ const CONFIG = {
 
     // After deploying the Apps Script, paste the Web App URL here
     // It will look like: https://script.google.com/macros/s/AKfycbx.../exec
-    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwL98lfIUqtML7aLBcr8E2kcb2G8GIbM9PbuDu5Cd_sguJughFK8xSugnBD94MHaV_d/exec',
+    APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzOxthHiT2S9fJQrgY9c0ov8tHYtqAOVJu5hNVxxI3OPYWzh9wKcsmhcCooI609cXJO/exec',
 
     // ============================================
     // DISPLAY SETTINGS
