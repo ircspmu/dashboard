@@ -21,12 +21,10 @@
                     <circle cx="11" cy="11" r="8"></circle>
                     <path d="M21 21l-4.35-4.35"></path>
                 </svg>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search resources by name, description, or tags...">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search resources...">
             </div>
 
-            <div id="categoryTabs" class="category-tabs">
-                <!-- Category tabs will be dynamically generated -->
-            </div>
+            <div id="categoryTabs" class="category-tabs"></div>
         </div>
 
         <div id="loading" class="loading">
@@ -40,7 +38,7 @@
                 <line x1="15" y1="9" x2="9" y2="15"></line>
                 <line x1="9" y1="9" x2="15" y2="15"></line>
             </svg>
-            <p id="errorMessage">Failed to load resources. Please check your configuration.</p>
+            <p id="errorMessage">Failed to load resources.</p>
         </div>
 
         <div id="noResults" class="no-results" style="display: none;">
@@ -48,12 +46,10 @@
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="M21 21l-4.35-4.35"></path>
             </svg>
-            <p>No resources found matching your search.</p>
+            <p>No resources found.</p>
         </div>
 
-        <div id="linksGrid" class="links-grid">
-            <!-- Link cards will be dynamically generated -->
-        </div>
+        <div id="iconsGrid" class="icons-grid"></div>
 
         <div id="resultCount" class="result-count" style="display: none;"></div>
     </main>
