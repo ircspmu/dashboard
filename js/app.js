@@ -7,13 +7,11 @@ class Dashboard {
         this.data = [];
         this.filteredData = [];
         this.categories = [];
-        this.activeCategory = CONFIG.DEFAULT_CATEGORY;
+        this.activeCategory = CONFIG.DEFAULT_CATEGORY || 'All';
         this.searchQuery = '';
 
-        // Color palette for icons
         this.colors = ['blue', 'green', 'purple', 'orange', 'red', 'teal', 'pink', 'yellow', 'indigo', 'cyan'];
 
-        // Icon SVGs by category keyword
         this.iconMap = {
             'document': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>',
             'tool': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>',
@@ -28,19 +26,28 @@ class Dashboard {
             'default': '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>'
         };
 
-        this.elements = {
-            searchInput: document.getElementById('searchInput'),
-            categoryTabs: document.getElementById('categoryTabs'),
-            iconsGrid: document.getElementById('iconsGrid'),
-            loading: document.getElementById('loading'),
-            error: document.getElementById('error'),
-            errorMessage: document.getElementById('errorMessage'),
-            noResults: document.getElementById('noResults'),
-            resultCount: document.getElementById('resultCount')
-        };
-
+        this.elements = {};
         this.sheets = new SheetsAPI(CONFIG);
         this.init();
+    }
+
+    el(id) {
+        return document.getElementById(id);
+    }
+
+    setHTML(id, html) {
+        const elem = this.el(id);
+        if (elem) elem.innerHTML = html;
+    }
+
+    setDisplay(id, display) {
+        const elem = this.el(id);
+        if (elem) elem.style.display = display;
+    }
+
+    setText(id, text) {
+        const elem = this.el(id);
+        if (elem) elem.textContent = text;
     }
 
     async init() {
@@ -49,10 +56,13 @@ class Dashboard {
     }
 
     bindEvents() {
-        this.elements.searchInput.addEventListener('input', (e) => {
-            this.searchQuery = e.target.value.toLowerCase().trim();
-            this.filterAndRender();
-        });
+        const input = this.el('searchInput');
+        if (input) {
+            input.addEventListener('input', (e) => {
+                this.searchQuery = e.target.value.toLowerCase().trim();
+                this.filterAndRender();
+            });
+        }
     }
 
     async loadData() {
@@ -65,6 +75,7 @@ class Dashboard {
             this.renderIcons();
             this.hideLoading();
         } catch (error) {
+            console.error('Load error:', error);
             this.showError(error.message);
         }
     }
@@ -88,18 +99,20 @@ class Dashboard {
     }
 
     renderCategoryTabs() {
-        this.elements.categoryTabs.innerHTML = this.categories
+        const html = this.categories
             .map(category => `
                 <button class="category-tab ${category === this.activeCategory ? 'active' : ''}" data-category="${this.escapeHtml(category)}">
                     ${this.escapeHtml(category)}
                 </button>
             `)
             .join('');
+        this.setHTML('categoryTabs', html);
 
-        this.elements.categoryTabs.querySelectorAll('.category-tab').forEach(tab => {
+        const tabs = document.querySelectorAll('.category-tab');
+        tabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 this.activeCategory = tab.dataset.category;
-                this.elements.categoryTabs.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                tabs.forEach(t => t.classList.remove('active'));
                 tab.classList.add('active');
                 this.filterAndRender();
             });
@@ -107,20 +120,28 @@ class Dashboard {
     }
 
     renderIcons() {
+        const grid = this.el('iconsGrid');
+        const noResults = this.el('noResults');
+        const resultCount = this.el('resultCount');
+
         if (this.filteredData.length === 0) {
-            this.elements.iconsGrid.innerHTML = '';
-            this.elements.noResults.style.display = 'block';
-            this.elements.resultCount.style.display = 'none';
+            if (grid) grid.innerHTML = '';
+            if (noResults) noResults.style.display = 'block';
+            if (resultCount) resultCount.style.display = 'none';
             return;
         }
 
-        this.elements.noResults.style.display = 'none';
-        this.elements.resultCount.style.display = 'block';
-        this.elements.resultCount.textContent = `Showing ${this.filteredData.length} resource${this.filteredData.length !== 1 ? 's' : ''}`;
+        if (noResults) noResults.style.display = 'none';
+        if (resultCount) {
+            resultCount.style.display = 'block';
+            resultCount.textContent = `Showing ${this.filteredData.length} resource${this.filteredData.length !== 1 ? 's' : ''}`;
+        }
 
-        this.elements.iconsGrid.innerHTML = this.filteredData
-            .map((item, index) => this.createIconTile(item, index))
-            .join('');
+        if (grid) {
+            grid.innerHTML = this.filteredData
+                .map((item, index) => this.createIconTile(item, index))
+                .join('');
+        }
     }
 
     createIconTile(item, index) {
@@ -138,11 +159,11 @@ class Dashboard {
     }
 
     getIcon(category, name) {
-        const key = category.toLowerCase();
-        const nameKey = name.toLowerCase();
+        const key = (category || '').toLowerCase();
+        const nameKey = (name || '').toLowerCase();
 
-        // Match by category or name keywords
         for (const [keyword, svg] of Object.entries(this.iconMap)) {
+            if (keyword === 'default') continue;
             if (key.includes(keyword) || nameKey.includes(keyword)) {
                 return svg;
             }
@@ -152,27 +173,28 @@ class Dashboard {
     }
 
     escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
 
     showLoading() {
-        this.elements.loading.style.display = 'block';
-        this.elements.error.style.display = 'none';
-        this.elements.noResults.style.display = 'none';
-        this.elements.iconsGrid.innerHTML = '';
+        this.setDisplay('loading', 'block');
+        this.setDisplay('error', 'none');
+        this.setDisplay('noResults', 'none');
+        this.setHTML('iconsGrid', '');
     }
 
     hideLoading() {
-        this.elements.loading.style.display = 'none';
+        this.setDisplay('loading', 'none');
     }
 
     showError(message) {
-        this.elements.loading.style.display = 'none';
-        this.elements.error.style.display = 'block';
-        this.elements.errorMessage.textContent = message;
-        this.elements.iconsGrid.innerHTML = '';
+        this.setDisplay('loading', 'none');
+        this.setDisplay('error', 'block');
+        this.setText('errorMessage', message);
+        this.setHTML('iconsGrid', '');
     }
 }
 

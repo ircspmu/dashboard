@@ -13,13 +13,28 @@ class SheetsAPI {
      */
     async fetchData() {
         try {
-            const response = await fetch(this.apiUrl);
+            const response = await fetch(this.apiUrl, {
+                method: 'GET',
+                redirect: 'follow',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
 
             if (!response.ok) {
                 throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
             }
 
-            const result = await response.json();
+            const text = await response.text();
+
+            // Try to parse as JSON
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch (e) {
+                console.error('Response text:', text.substring(0, 500));
+                throw new Error('Invalid JSON response from Apps Script. Check if the script is deployed correctly.');
+            }
 
             if (result.error) {
                 throw new Error(result.message || 'Unknown error from Apps Script');
@@ -27,8 +42,9 @@ class SheetsAPI {
 
             return result.data || [];
         } catch (error) {
+            console.error('Fetch error:', error);
             if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                throw new Error('Network error. Please check your internet connection and verify the Apps Script URL is correct and deployed.');
+                throw new Error('Network error. Check your internet and verify the Apps Script URL is correct and deployed as a Web App.');
             }
             throw error;
         }
